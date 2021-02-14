@@ -1,8 +1,40 @@
+## The aim of this script is to load and process CSV data from the Garmin Connect website.
+## It will analyse various aspects of running performance over time. The focus is year-on-year comparisons.
+## This script will load all csv files in Data/ (in current wd) and filter for Running (and Treadmill Running)
+## Place one or moe Garmin CSV outputs into the Data folder for inclusion. Dates for activities can be overlapping
+## duplicates are dealt with, so you can just keep adding csvs with the latest data and use the script again.
+
 require(ggplot2)
 require(dplyr)
 require(hms)
-file_name <- file.choose()
-df1 <- read.csv(file_name, header = TRUE, stringsAsFactors = FALSE)
+
+## Setup preferred directory structure in wd
+ifelse(!dir.exists("Data"), dir.create("Data"), "Folder exists already")
+ifelse(!dir.exists("Output"), dir.create("Output"), "Folder exists already")
+ifelse(!dir.exists("Output/Data"), dir.create("Output/Data"), "Folder exists already")
+ifelse(!dir.exists("Output/Plots"), dir.create("Output/Plots"), "Folder exists already")
+ifelse(!dir.exists("Script"), dir.create("Script"), "Folder exists already")
+
+# functions
+
+load_garmin_data <- function(activity) {
+  all_files <- list.files("Data", pattern = "*.csv", full.names = TRUE)
+  df_all <- read.csv(all_files[1], header = TRUE, stringsAsFactors=FALSE)
+  for (filename in all_files[-1]) {
+    df_temp <- read.csv(filename, stringsAsFactors=FALSE)
+    df_all <- rbind(df_all, df_temp)
+  }
+  # remove duplicates
+  df_all <- df_all[!duplicated(df_all), ]
+  # filter for activity
+  df_all <- subset(df_all,grepl(tolower(activity),tolower(df_all$Activity.Type)))
+  
+  return(df_all)
+}
+
+# main script
+
+df1 <- load_garmin_data("running")
 # format Date column to POSIXct
 df1$Date <- as.POSIXct(strptime(df1$Date, format = "%Y-%m-%d %H:%M:%S"))
 # format Avg.Pace to POSIXct
@@ -84,13 +116,15 @@ p8 <- ggplot( data = df1, aes(x = Days,y = cumsum, group = Year, color = Year)) 
   scale_x_continuous() +
   labs(x = "Days", y = "Cumulative distance (km)")
 p8
+
 # save all plots
-ggsave("allPace.png", plot = p1, width = 8, height = 4, dpi = "print")
-ggsave("paceByDist.png", plot = p2, width = 8, height = 4, dpi = "print")
-ggsave("strideByDist.png", plot = p3, width = 8, height = 4, dpi = "print")
-ggsave("HRByDist.png", plot = p4, width = 8, height = 4, dpi = "print")
-ggsave("allPaceByDist.png", plot = p5, width = 8, height = 4, dpi = "print")
-ggsave("paceByDistByYear.png", plot = p6, width = 8, height = 4, dpi = "print")
-ggsave("cumulativeDistByYear.png", plot = p7, width = 8, height = 4, dpi = "print")
-ggsave("cumulativeDistOverlay.png", plot = p8, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/allPace.png", plot = p1, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/paceByDist.png", plot = p2, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/strideByDist.png", plot = p3, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/HRByDist.png", plot = p4, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/allPaceByDist.png", plot = p5, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/paceByDistByYear.png", plot = p6, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/cumulativeDistByYear.png", plot = p7, width = 8, height = 4, dpi = "print")
+ggsave("Output/Plots/cumulativeDistOverlay.png", plot = p8, width = 8, height = 4, dpi = "print")
+
 

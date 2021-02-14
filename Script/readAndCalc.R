@@ -1,3 +1,10 @@
+## The aim of this script is to load and process CSV data from the Garmin Connect website.
+## It will check whether you are on track to meet a running goal, i.e. n km between date1 and date2.
+## This script will load all csv files in Data/ (in current wd) and filter for Running (and Treadmill Running)
+## Place one or moe Garmin CSV outputs into the Data folder for inclusion. Dates for activities can be overlapping
+## duplicates are dealt with, so you can just keep adding csvs with the latest data and use the script again.
+
+
 require(ggplot2)
 require(hms)
 
