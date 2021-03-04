@@ -25,7 +25,7 @@ compare2target <- function(activity,fromStr,toStr,df) {
   toDate <- as.Date(toStr)
   df_window <- subset(df_window, as.Date(df_window$Date) >= fromDate & as.Date(df_window$Date) <= toDate)
   # put them in order
-  df_window <- df_window[order(as.Date(df_window$Date)),]
+  df_window <- df_window[order(as.numeric(df_window$Date)),]
   df_window$Cumulative.Distance <- cumsum(df_window$Distance)
   
   return(df_window)
@@ -70,15 +70,20 @@ process_data <- function(activityStr,fromStr,toStr,km) {
                     all.x = TRUE)
   df_merge$Difference <- df_merge$Cumulative.Distance.x - df_merge$Cumulative.Distance.y
   
+  # save data
+  write.table(df_all, file = "Output/Data/alldata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_merge, file = "Output/Data/mergedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_target, file = "Output/Data/targetdata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
+  
   # plot out cumulative distance over time compared to target
   p1 <- ggplot(data = df_all, aes(x = Date, y = Cumulative.Distance)) + 
-    geom_line(colour = "blue", size = 1.2) +
+    geom_line(colour = "blue", size = 1) +
     geom_line(data = df_target, linetype = 2) +
     labs(x = "Date", y = "Cumulative Distance (km)")
   p1
   # plot out how it's going wrt to target
   p2 <- ggplot(data = df_merge, aes(x = Date, y = Difference)) + 
-    geom_line(colour = "blue", size = 1.2) +
+    geom_line(colour = "blue", size = 1) +
     geom_hline(yintercept = 0, linetype = 2) +
     ylim(-max(abs(df_merge$Difference)),max(abs(df_merge$Difference))) +
     labs(x = "Date", y = "Difference (km)")
