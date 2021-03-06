@@ -92,6 +92,16 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   # save all plots
   ggsave("Output/Plots/progress.png", plot = p1, width = 8, height = 4, dpi = "print")
   ggsave("Output/Plots/difference.png", plot = p2, width = 8, height = 4, dpi = "print")
+  
+  # report distances
+  print(paste0("Last ",activityStr," activity on: ", toString(df_all[nrow(df_all),2]),". Today is ", toString(Sys.Date())))
+  print(paste0("Total ",activityStr," distance between ", fromStr," and ",toStr, " is ", toString(df_merge[nrow(df_merge),2])," km. Goal is ", km, " km."))
+  if(df_merge[nrow(df_merge),4] < 0) {
+    print(paste0(toString(df_merge[nrow(df_merge),4] * -1)," km behind target."))
+  } else {
+    print(paste0(toString(df_merge[nrow(df_merge),4])," km ahead of target."))
+  }
+  print(paste0(toString(km - df_merge[nrow(df_merge),2]), " km to go!"))
 }
 
 # to process the data
