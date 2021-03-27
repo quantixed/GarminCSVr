@@ -70,6 +70,16 @@ process_data <- function(activityStr,fromStr,toStr,km) {
                     all.x = TRUE)
   df_merge$Difference <- df_merge$Cumulative.Distance.x - df_merge$Cumulative.Distance.y
   
+  # make dataframe to show more granular "balance" of km
+  df_debit <- data.frame(Date = df_target$Date,
+                         Distance = -(km / nrow(df_target)))
+  df_credit <- data.frame(Date = df_all$Date,
+                          Distance = df_all$Distance)
+  df_balance <- rbind(df_debit,df_credit)
+  df_balance <- df_balance[order(as.numeric(df_balance$Date)),]
+  df_balance <- subset(df_balance, as.Date(df_balance$Date) <= as.Date(Sys.Date()))
+  df_balance$Cumulative.Distance <- cumsum(df_balance$Distance)
+  
   # save data
   write.table(df_all, file = "Output/Data/alldata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
   write.table(df_merge, file = "Output/Data/mergedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
@@ -80,18 +90,23 @@ process_data <- function(activityStr,fromStr,toStr,km) {
     geom_line(colour = "blue", size = 1) +
     geom_line(data = df_target, linetype = 2) +
     labs(x = "Date", y = "Cumulative Distance (km)")
-  p1
   # plot out how it's going wrt to target
   p2 <- ggplot(data = df_merge, aes(x = Date, y = Difference)) + 
     geom_line(colour = "blue", size = 1) +
     geom_hline(yintercept = 0, linetype = 2) +
     ylim(-max(abs(df_merge$Difference)),max(abs(df_merge$Difference))) +
     labs(x = "Date", y = "Difference (km)")
-  p2
+  # more accurate "balance" graph
+  p3 <- ggplot(data = df_balance, aes(x = Date, y = Cumulative.Distance)) + 
+    geom_line(colour = "blue", size = 1) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    ylim(-max(abs(df_balance$Cumulative.Distance)),max(abs(df_balance$Cumulative.Distance))) +
+    labs(x = "Date", y = "Balance (km)")
   
   # save all plots
   ggsave("Output/Plots/progress.png", plot = p1, width = 8, height = 4, dpi = "print")
   ggsave("Output/Plots/difference.png", plot = p2, width = 8, height = 4, dpi = "print")
+  ggsave("Output/Plots/balance.png", plot = p3, width = 8, height = 4, dpi = "print")
   
   # report distances
   print(paste0("Last ",activityStr," activity on: ", toString(df_all[nrow(df_all),2]),". Today is ", toString(Sys.Date())))
