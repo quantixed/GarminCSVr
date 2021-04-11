@@ -79,11 +79,13 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   df_balance <- df_balance[order(as.numeric(df_balance$Date)),]
   df_balance <- subset(df_balance, as.Date(df_balance$Date) <= as.Date(Sys.Date()))
   df_balance$Cumulative.Distance <- cumsum(df_balance$Distance)
+  df_balance$Date <- as.Date(df_balance$Date, format = "%Y-%m-%d %H:%M:%S")
   
   # save data
   write.table(df_all, file = "Output/Data/alldata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
   write.table(df_merge, file = "Output/Data/mergedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
   write.table(df_target, file = "Output/Data/targetdata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_balance, file = "Output/Data/balancedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
   
   # plot out cumulative distance over time compared to target
   p1 <- ggplot(data = df_all, aes(x = Date, y = Cumulative.Distance)) + 
@@ -94,12 +96,14 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   p2 <- ggplot(data = df_merge, aes(x = Date, y = Difference)) + 
     geom_line(colour = "blue", size = 1) +
     geom_hline(yintercept = 0, linetype = 2) +
+    xlim(as.Date(fromStr), as.Date(toStr)) +
     ylim(-max(abs(df_merge$Difference)),max(abs(df_merge$Difference))) +
     labs(x = "Date", y = "Difference (km)")
   # more accurate "balance" graph
   p3 <- ggplot(data = df_balance, aes(x = Date, y = Cumulative.Distance)) + 
     geom_line(colour = "blue", size = 1) +
     geom_hline(yintercept = 0, linetype = 2) +
+    xlim(as.Date(paste0(fromStr," 00:00:00"), format = "%Y-%m-%d %H:%M:%S"), as.Date(paste0(toStr," 23:59:59"), format = "%Y-%m-%d %H:%M:%S")) +
     ylim(-max(abs(df_balance$Cumulative.Distance)),max(abs(df_balance$Cumulative.Distance))) +
     labs(x = "Date", y = "Balance (km)")
   
@@ -116,9 +120,17 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   } else {
     print(paste0(toString(df_merge[nrow(df_merge),4])," km ahead of target."))
   }
-  print(paste0(toString(km - df_merge[nrow(df_merge),2]), " km to go!"))
+  if(km > df_merge[nrow(df_merge),2]) {
+    print(paste0(toString(km - df_merge[nrow(df_merge),2]), " km to go!"))
+  } else {
+    print("You did it!")
+  }
 }
 
 # to process the data
 # Garmin 2021 Running - Stage 1
-process_data("running","2021-01-01","2021-03-31",505)
+# process_data("running","2021-01-01","2021-03-31",505)
+# Garmin 2021 Running - Stage 2
+process_data("running","2021-04-01","2021-06-30",505)
+#process_data("running","2021-01-01","2021-06-30",1010)
+#process_data("running","2021-01-01","2021-12-31",2021)
