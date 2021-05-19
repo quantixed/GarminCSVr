@@ -43,8 +43,11 @@ maketarget <- function(fromStr,toStr,km) {
 process_data <- function(activityStr,fromStr,toStr,km) {
   all_files <- list.files("Data", pattern = "*.csv", full.names = TRUE)
   df_all <- read.csv(all_files[1], header = TRUE, stringsAsFactors=FALSE)
+  df_all <- subset(df_all, select = c(Activity.Type,Date,Title,Distance,Time))
   for (filename in all_files[-1]) {
       df_temp <- read.csv(filename, stringsAsFactors=FALSE)
+      # subset data because Garmin can add or remove columns and we don't need them all
+      df_temp <- subset(df_temp, select = c(Activity.Type,Date,Title,Distance,Time))
       df_all <- rbind(df_all, df_temp)
   }
   # remove duplicates
