@@ -1,7 +1,7 @@
 ## The aim of this script is to load and process CSV data from the Garmin Connect website.
 ## It will check whether you are on track to meet a running goal, i.e. n km between date1 and date2.
 ## This script will load all csv files in Data/ (in current wd) and filter for Running (and Treadmill Running)
-## Place one or moe Garmin CSV outputs into the Data folder for inclusion. Dates for activities can be overlapping
+## Place one or more Garmin CSV outputs into the Data folder for inclusion. Dates for activities can be overlapping
 ## duplicates are dealt with, so you can just keep adding csvs with the latest data and use the script again.
 
 
@@ -85,10 +85,10 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   df_balance$Date <- as.Date(df_balance$Date, format = "%Y-%m-%d %H:%M:%S")
   
   # save data
-  write.table(df_all, file = "Output/Data/alldata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
-  write.table(df_merge, file = "Output/Data/mergedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
-  write.table(df_target, file = "Output/Data/targetdata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
-  write.table(df_balance, file = "Output/Data/balancedata.txt", sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_all, file = paste0("Output/Data/alldata_",fromStr,"_",toStr,".txt"), sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_merge, file = paste0("Output/Data/mergedata_",fromStr,"_",toStr,".txt"), sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_target, file = paste0("Output/Data/targetdata_",fromStr,"_",toStr,".txt"), sep="\t", row.names=FALSE, col.name=TRUE)
+  write.table(df_balance, file = paste0("Output/Data/balancedata_",fromStr,"_",toStr,".txt"), sep="\t", row.names=FALSE, col.name=TRUE)
   
   # plot out cumulative distance over time compared to target
   p1 <- ggplot(data = df_all, aes(x = Date, y = Cumulative.Distance)) + 
@@ -111,9 +111,9 @@ process_data <- function(activityStr,fromStr,toStr,km) {
     labs(x = "Date", y = "Balance (km)")
   
   # save all plots
-  ggsave("Output/Plots/progress.png", plot = p1, width = 8, height = 4, dpi = "print")
-  ggsave("Output/Plots/difference.png", plot = p2, width = 8, height = 4, dpi = "print")
-  ggsave("Output/Plots/balance.png", plot = p3, width = 8, height = 4, dpi = "print")
+  ggsave(paste0("Output/Plots/progress_",fromStr,"_",toStr,".png"), plot = p1, width = 8, height = 4, dpi = "print")
+  ggsave(paste0("Output/Plots/difference_",fromStr,"_",toStr,".png"), plot = p2, width = 8, height = 4, dpi = "print")
+  ggsave(paste0("Output/Plots/balance_",fromStr,"_",toStr,".png"), plot = p3, width = 8, height = 4, dpi = "print")
   
   # report distances
   print(paste0("Last ",activityStr," activity on: ", toString(df_all[nrow(df_all),2]),". Today is ", toString(Sys.Date())))
@@ -128,12 +128,18 @@ process_data <- function(activityStr,fromStr,toStr,km) {
   } else {
     print("You did it!")
   }
+  print(paste0("In this period you have run ",sum(floor(df_all$Distance / 21.1))," half-marathons."))
 }
 
 # to process the data
 # Garmin 2021 Running - Stage 1
-# process_data("running","2021-01-01","2021-03-31",505)
+process_data("running","2021-01-01","2021-03-31",505)
 # Garmin 2021 Running - Stage 2
 process_data("running","2021-04-01","2021-06-30",505)
-#process_data("running","2021-01-01","2021-06-30",1010)
-#process_data("running","2021-01-01","2021-12-31",2021)
+# Garmin 2021 Running - Stage 3
+process_data("running","2021-07-01","2021-09-30",505) 
+# Garmin 2021 Running - Stage 4
+process_data("running","2021-10-01","2021-12-31",506) 
+
+# Overall
+process_data("running","2021-01-01","2021-12-31",2021)
