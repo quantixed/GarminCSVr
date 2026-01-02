@@ -1,10 +1,25 @@
 Package: GarminCSVr
-Title: What the Package Does (One Line, Title Case)
+Title: Analysis of Garmin Connect running data
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: GPL (>= 3)
+Authors@R:
+    person(given = "Stephen J",
+           family = "Royle",
+           role = c("cre", "aut"),
+           email = "admin@quantixed.org",
+           comment = c(ORCID = "0000-0001-8927-6967"))
+Maintainer: Stephen Royle <admin@quantixed.org>
+Description: Using csv summary data from Garmin Connect, analyse running data.
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Imports:
+  dplyr,
+  ggplot2,
+  grDevices,
+  lubridate,
+  patchwork,
+  stats,
+  timetk,
+  treemap,
+  utils

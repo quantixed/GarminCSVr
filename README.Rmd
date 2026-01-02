@@ -1,18 +1,28 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
 # GarminCSVr
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 A simple R package to process Garmin CSV files for running analysis.
 
 ## Installation
 
-You can install the development version of GarminCSVr from
-[GitHub](https://github.com/) with:
+You can install the development version of GarminCSVr from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -21,15 +31,13 @@ pak::pak("quantixed/GarminCSVr")
 
 ## Example
 
-Using CSVs downloaded from the Activities section of your Garmin Connect
-account, you can use GarminCSVr to analyze your running data.
+Using CSVs downloaded from the Activities section of your Garmin Connect account, you can use GarminCSVr to analyze your running data.
 
-Store the CSV files in a folder named `Data` in your working directory,
-then run the following code:
+Store the CSV files in a folder named `Data` in your working directory, then run the following code:
 
 This is a basic example which shows you how to solve a common problem:
 
-``` r
+```{r example, eval=FALSE}
 library(GarminCSVr)
 ## basic example code
 summarise_my_running <- function(from, to, annual){
