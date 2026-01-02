@@ -2,6 +2,7 @@
 #'
 #' Make a treemap of run distances
 #'
+#' @param df_all data frame with all Garmin activity data
 #' @param from string of form "YYYY-MM-DD"
 #' @param to string of form "YYYY-MM-DD"
 #'
@@ -12,12 +13,10 @@
 #'
 #' @export
 
-distanceTreemap <- function(from, to) {
+distanceTreemap <- function(df_all, from, to) {
   Distance <- NULL
   # load the data (output from process_data() within a timeframe of interest)
-  tframe <- paste0(from, "_", to)
-  all_data <- read.csv(paste0("Output/Data/alldata_", tframe, ".txt"),
-                       sep = "\t")
+  all_data <- get_data_subset(df_all, from, to)
   # max run distance to the next multiple of five
   max_dist <- ceiling(max(all_data$Distance) / 5) * 5
   # make histogram of running distances
@@ -29,6 +28,8 @@ distanceTreemap <- function(from, to) {
     geom_histogram(breaks = seq(from = 0, to = max_dist, by = 1)) +
     labs(x = "Distance (km)", y = "Total (km)") +
     theme_bw()
+
+  tframe <- paste0(from, "_", to)
   ggsave(paste0("Output/Plots/distanceHist_", tframe, ".png"), p1)
   ggsave(paste0("Output/Plots/distanceHist_w_", tframe, ".png"), p2)
 

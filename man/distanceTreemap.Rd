@@ -4,9 +4,11 @@
 \alias{distanceTreemap}
 \title{Distance Treemap}
 \usage{
-distanceTreemap(from, to)
+distanceTreemap(df_all, from, to)
 }
 \arguments{
+\item{df_all}{data frame with all Garmin activity data}
+
 \item{from}{string of form "YYYY-MM-DD"}
 
 \item{to}{string of form "YYYY-MM-DD"}

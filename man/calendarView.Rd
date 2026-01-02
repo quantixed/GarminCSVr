@@ -4,9 +4,11 @@
 \alias{calendarView}
 \title{Calendar View}
 \usage{
-calendarView(from, to)
+calendarView(df_all, from, to)
 }
 \arguments{
+\item{df_all}{Data frame with all activity data}
+
 \item{from}{Start date in "YYYY-MM-DD" format}
 
 \item{to}{End date in "YYYY-MM-DD" format}

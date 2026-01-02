@@ -226,8 +226,10 @@ calendarHeatmap <- function(dates,
 #'
 #' Creates calendar heatmaps for number of runs and distance per day
 #'
+#' @param df_all Data frame with all activity data
 #' @param from Start date in "YYYY-MM-DD" format
 #' @param to End date in "YYYY-MM-DD" format
+#'
 #' @import dplyr
 #' @import ggplot2
 #' @import patchwork
@@ -237,14 +239,12 @@ calendarHeatmap <- function(dates,
 #'
 #' @return Saves calendar heatmaps as single PNG file
 #'
-calendarView <- function(from, to) {
+calendarView <- function(df_all, from, to) {
 
   Date <- Distance <- NULL
 
-  # load the data (output from process_data() within a timeframe of interest)
-  tframe <- paste0(from, "_", to)
-  df_day <- read.csv(paste0("Output/Data/alldata_",
-                            from, "_", to, ".txt"), sep = "\t")
+  # get data subset for the period
+  df_day <- get_data_subset(df_all, from, to)
   # plot the data
   df_day$Date <- as.Date(df_day$Date)
   df_day <- df_day %>%
@@ -262,5 +262,6 @@ calendarView <- function(from, to) {
                         title = "", subtitle = "km per day")
   # compile plots with patchwork
   p <- p1 / p2
+  tframe <- paste0(from, "_", to)
   ggsave(paste0("Output/Plots/calendar_per_day_", tframe, ".png"), p)
 }

@@ -2,11 +2,13 @@
 % Please edit documentation in R/TSS.R
 \name{find_form}
 \alias{find_form}
-\title{Wrapper function to find and plot Form (CTL, ATL, TSS)}
+\title{Function to find and plot Form (CTL, ATL, TSS)}
 \usage{
-find_form(from, to)
+find_form(df_all, from, to)
 }
 \arguments{
+\item{df_all}{data frame with all Garmin activity data}
+
 \item{from}{character string of form "YYYY-MM-DD"}
 
 \item{to}{character string of form "YYYY-MM-DD"}
@@ -15,5 +17,5 @@ find_form(from, to)
 saves plot to Output/Plots folder
 }
 \description{
-Wrapper function to find and plot Form (CTL, ATL, TSS)
+Function to find and plot Form (CTL, ATL, TSS)
 }

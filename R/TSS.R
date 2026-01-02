@@ -1,62 +1,37 @@
-#' Load and process Garmin activity data to calculate training load
+#' Function to find and plot Form (CTL, ATL, TSS)
 #'
-#' @param activityStr string of activity type to use as a filter
-#' @param fromStr string of form "YYYY-MM-DD"
-#' @param toStr string of form "YYYY-MM-DD"
-#'
-#' @returns data frame with activities of type activityStr within date window
-#' @export
-
-process_load <- function(activityStr, fromStr, toStr) {
-  Activity.Type <- Avg.HR <- Distance <- Time <- Title <- NULL
-  all_files <- list.files("Data", pattern = "*.csv", full.names = TRUE)
-  df_all <- read.csv(all_files[1], header = TRUE, stringsAsFactors = FALSE)
-  df_all <- subset(df_all, select = c(Activity.Type, Date, Title, Distance, Time, Avg.HR))
-  for (filename in all_files[-1]) {
-    df_temp <- read.csv(filename, stringsAsFactors = FALSE)
-    # subset data because Garmin can add or remove columns and we don't need them all
-    df_temp <- subset(df_temp, select = c(Activity.Type, Date, Title, Distance, Time, Avg.HR))
-    df_all <- rbind(df_all, df_temp)
-  }
-  # remove duplicates
-  df_all <- df_all[!duplicated(df_all), ]
-  # format Date column to POSIXct
-  df_all$Date <- as.POSIXct(strptime(df_all$Date, format = "%Y-%m-%d %H:%M:%S"))
-  # convert average HR to numeric
-  df_all$Avg.HR <- as.numeric(df_all$Avg.HR)
-  # replace NA with average of Avg.HR
-
-  # retrieve the activities that match activity type in the time window of interest
-
-  df_all <- getWindowActivities(activityStr, fromStr, toStr, df_all)
-  # add a column that contains the load of each activity
-  # one way to calculate load is to multiply time in hours by avg HR and add 2.5 times avg HR
-  # this relates to load by y = ax + b of a = 0.418, b = -150
-  df_all$load <- 0.418 * ((as.numeric(lubridate::hms(df_all$Time)) / 3600 * df_all$Avg.HR) + (2.5 * df_all$Avg.HR)) - 150
-
-  return(df_all)
-}
-
-
-#' Wrapper function to find and plot Form (CTL, ATL, TSS)
-#'
+#' @param df_all data frame with all Garmin activity data
 #' @param from character string of form "YYYY-MM-DD"
 #' @param to character string of form "YYYY-MM-DD"
+#'
+#' @import lubridate
 #'
 #' @returns saves plot to Output/Plots folder
 #' @export
 
-find_form <- function(from, to) {
+find_form <- function(df_all, from, to) {
   CTL <- ATL <- TSS <- NULL
   xstart <- xend <- ystart <- yend <- NULL
-  # from and to are of the form "YYYY-MM-DD"
-  # we need to use a from date that is 90 days earlier so that we get accurate
-  # CTL/ATL/TSS values
+
+  # from and to are of the form "YYYY-MM-DD", we need to use a from date that
+  # is 90 days earlier so that we get accurate CTL/ATL/TSS values at the start
+  # of the window of interest
+
+  # store the true "from" date
   actual_from <- from
+  # calculate new from date
   from_date <- as.Date(from) - 90
   from <- format(from_date, "%Y-%m-%d")
-  # load data in and calculate load for each activity
-  mydata <- process_load("running", from, to)
+
+  #  and calculate load for each activity
+  mydata <- get_data_subset(df_all, from, to)
+  # add a column that contains the load of each activity
+  # one way to calculate load is to
+  # multiply time in hours by avg HR and add 2.5 times avg HR
+  # this relates to load by y = ax + b of a = 0.418, b = -150
+  mydata$load <- 0.418 * (
+    (as.numeric(hms(mydata$Time)) / 3600 * mydata$Avg.HR) +
+      (2.5 * mydata$Avg.HR)) - 150
   # make a data frame that has every day in our time window represented
   tl <- makeDateDF(from, to)
   # sum the load for each day
@@ -108,32 +83,9 @@ find_form <- function(from, to) {
   # patchwork assembly
   p3 <- p1 / p2
   # save plots
-  ggsave(paste0("Output/Plots/tss_", actual_from, "_", to, ".png"),
+  tframe <- paste0(actual_from, "_", to)
+  ggsave(paste0("Output/Plots/tss_", tframe, ".png"),
          plot = p3, width = 8, height = 4, dpi = "print")
-}
-
-
-#' Utility function to get activities of a certain type within a date window
-#'
-#' @param activity string of activity type to use as a filter
-#' @param fromStr string of form "YYYY-MM-DD"
-#' @param toStr string of form "YYYY-MM-DD"
-#' @param df data frame with all activities
-#'
-#' @returns data frame with activities of type activity within date window
-#' @keywords internal
-
-getWindowActivities <- function(activity, fromStr, toStr, df) {
-  # filter for activity
-  df_window <- subset(df, grepl(tolower(activity), tolower(df$Activity.Type)))
-  # activities within the window
-  fromDate <- as.Date(fromStr)
-  toDate <- as.Date(toStr)
-  df_window <- subset(df_window, as.Date(df_window$Date) >= fromDate & as.Date(df_window$Date) <= toDate)
-  # put them in order
-  df_window <- df_window[order(as.numeric(df_window$Date)), ]
-
-  return(df_window)
 }
 
 

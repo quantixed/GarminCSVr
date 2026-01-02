@@ -25,25 +25,11 @@ Using CSVs downloaded from the Activities section of your Garmin Connect
 account, you can use GarminCSVr to analyze your running data.
 
 Store the CSV files in a folder named `Data` in your working directory,
-then run the following code:
-
-This is a basic example which shows you how to solve a common problem:
+then run the following code to summarize your activities for the year
+2023 with an annual target of 1500 km:
 
 ``` r
 library(GarminCSVr)
 ## basic example code
-summarise_my_running <- function(from, to, annual){
-  # readAndCalc equivalent 
-  process_data(activityStr = "running", fromStr = from, toStr = to, km = annual)
-  
-  # TSS score
-  find_form(from = from, to = to)
-  
-  # distance map
-  distanceTreemap(from = from, to = to)
-  
-  # calendar view
-  calendarView(from = from, to = to)
-}
-summarise_my_running(from = "2023-01-01", to = "2023-12-31", annual = 1500)
+summarise_activities(from = "2023-01-01", to = "2023-12-31", annual = 1500)
 ```
