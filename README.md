@@ -19,10 +19,11 @@ You can install the development version of GarminCSVr from
 devtools::install_github("quantixed/GarminCSVr")
 ```
 
-## Example
+## Usage
 
 Using CSVs downloaded from the Activities section of your Garmin Connect
-account, you can use GarminCSVr to analyze your running data.
+account, you can use GarminCSVr to analyze your running data (see note
+below for more information).
 
 Store the CSV files in a folder named `Data` in your working directory,
 then run the following code to summarize your activities for the year
@@ -39,14 +40,23 @@ Training Stress Score (TSS) form analysis, a distance treemap, and a
 calendar view of your activities. The plots will be saved in the
 `Output/Plots` directory.
 
-The idea is to track up to one year’s worth of data as you strive to
-reach an annual target.
+The idea with `summarise_activities()` is to track up to one year’s
+worth of data as you strive to reach an annual target.
 
-If you have
+If you have several years of data, you can use `compare_years()`
+different years of activities
+
+``` r
+library(GarminCSVr)
+## compare all years
+compare_years()
+## compare years with date range
+compare_years(from = "2021-01-01", to = "2024-12-31")
+```
 
 ## Go exploring
 
-Instead of running the automated summary, you can also use the
+Instead of using the automated summaries, you can also use the
 individual functions to explore your data in more detail. See the
 function documentation for more details on how to use each function.
 
@@ -68,6 +78,25 @@ ggplot(df, aes(x = Year, y = Distance, fill = Year)) +
   theme(legend.position = "none")
 ```
 
+## Example data
+
+The idea is to analyse your own data, but in case you want to try out
+the package first, you can run this example:
+
+``` r
+library(GarminCSVr)
+# example data included in the package
+# summarise activities for 2025 with a target of 1500 km
+summarise_activities(datadir = system.file("extdata",package = "GarminCSVr"),
+                     from = "2025-01-01", to = "2025-12-31", target = 1500)
+# comparison of years using the example data
+compare_years(datadir = system.file("extdata",package = "GarminCSVr"))
+```
+
+If you run this in a clean RStudio project, the example will create the
+`Output/Plots` directory in your working directory and save the plots
+there.
+
 ## Note
 
 On Garmin Connect, you can download your activity data as CSV files from
@@ -82,3 +111,8 @@ If you’ve exported all the activities, and then later export more
 activities, just add the new CSV files to the `Data` directory.
 GarminCSVr will process all CSV files in that directory each time you
 run the analysis and will handle duplicates automatically.
+
+If you’d like to analyse Cycling or other activity types, you can
+specify the activity type in the function calls, e.g.,
+`activity = "Cycling"`. It should work but has not been tested
+thoroughly.
