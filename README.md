@@ -15,8 +15,8 @@ You can install the development version of GarminCSVr from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("quantixed/GarminCSVr")
+# install.packages("devtools")
+devtools::install_github("quantixed/GarminCSVr")
 ```
 
 ## Example
@@ -33,3 +33,52 @@ library(GarminCSVr)
 ## basic example code
 summarise_activities(from = "2023-01-01", to = "2023-12-31", annual = 1500)
 ```
+
+This will generate several plots including progress towards your target,
+Training Stress Score (TSS) form analysis, a distance treemap, and a
+calendar view of your activities. The plots will be saved in the
+`Output/Plots` directory.
+
+The idea is to track up to one year’s worth of data as you strive to
+reach an annual target.
+
+If you have
+
+## Go exploring
+
+Instead of running the automated summary, you can also use the
+individual functions to explore your data in more detail. See the
+function documentation for more details on how to use each function.
+
+``` r
+library(ggplot2)
+# load all running data
+df <- load_garmin_data(minimal = FALSE)
+# this will load all data, filtered for running, from the default Data directory
+# into a data frame
+
+# plot distribution of daily distances by year
+df$Year <- format(df$Date, "%Y")
+ggplot(df, aes(x = Year, y = Distance, fill = Year)) +
+  geom_boxplot() +
+  labs(title = "Yearly Distribution of Daily Distances",
+       x = "Year",
+       y = "Distance (km)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+## Note
+
+On Garmin Connect, you can download your activity data as CSV files from
+the Activities section. Select the activities you want to analyze, and
+use the “Export” option to download them in CSV format. Save these files
+in the `Data` directory for processing with GarminCSVr.
+
+You can scroll down in Garmin Connect to go back in time and get as many
+activities as you need.
+
+If you’ve exported all the activities, and then later export more
+activities, just add the new CSV files to the `Data` directory.
+GarminCSVr will process all CSV files in that directory each time you
+run the analysis and will handle duplicates automatically.

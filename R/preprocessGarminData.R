@@ -31,6 +31,19 @@ preprocess_garmin_data <- function(df_all = NULL,
       to = as.Date(max(df_all$Date))
     }
   }
+  # check that from is before to
+  if(as.Date(from) > as.Date(to)){
+    stop("Invalid date range: 'from' date is after 'to' date.")
+  }
+  # check that there is data in the date range
+  df_subset <- subset(df_all,
+                      as.Date(df_all$Date) >= as.Date(from) &
+                      as.Date(df_all$Date) <= as.Date(to))
+  if(nrow(df_subset) == 0){
+    stop(paste0("No activity data found between ", from, " and ", to,
+                ". Please check the date range."))
+  }
+  # if no target distance provided, calculate total distance
   if(is.null(km)) {
     km = sum(subset(df_all,
                     as.Date(df_all$Date) >= as.Date(from) &

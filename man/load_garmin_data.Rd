@@ -4,12 +4,14 @@
 \alias{load_garmin_data}
 \title{Load all Garmin activity data from CSV files}
 \usage{
-load_garmin_data(activity = "Running", datadir = "Data")
+load_garmin_data(activity = "Running", datadir = "Data", minimal = TRUE)
 }
 \arguments{
 \item{activity}{character string of activity type to use as a filter}
 
 \item{datadir}{character string of folder name where CSV files are stored}
+
+\item{minimal}{logical indicating whether to load minimal columns (default TRUE)}
 }
 \value{
 data frame of activity data
